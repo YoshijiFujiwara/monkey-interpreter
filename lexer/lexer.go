@@ -51,7 +51,7 @@ func (l *Lexer) NextToken() token.Token {
 	case '-':
 		tok = newToken(token.MINUS, l.ch)
 	case '!':
-		if l.peekChar() != '=' {
+		if l.peekChar() == '=' {
 			// 現在の文字を失わないように、ローカル変数に保存する
 			ch := l.ch
 			l.readChar()

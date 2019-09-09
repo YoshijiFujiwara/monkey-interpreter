@@ -56,6 +56,7 @@ func (p *Parser) nextToken() {
 }
 
 func (p *Parser) ParseProgram() *ast.Program {
+	// ASTのルートノードを生成
 	program := &ast.Program{}
 	program.Statements = []ast.Statement{}
 
@@ -204,6 +205,7 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 }
 
 func (p *Parser) noPrefixParseFnError(t token.TokenType) {
+	fmt.Println(t)
 	msg := fmt.Sprintf("no prefix parse function for %s found", t)
 	p.errors = append(p.errors, msg)
 }

@@ -47,12 +47,14 @@ func (p *Program) String() string {
 }
 
 type LetStatement struct {
-	Token token.Token
+	Token token.Token // token.LET トークン
 	Name  *Identifier // 束縛の識別子を保持するために必要
 	Value Expression  // 値を生成する式を保持するために必要
 }
 
+// statementインターフェースを満たす
 func (ls *LetStatement) statementNode()       {}
+// Nodeインターフェースを満たす
 func (ls *LetStatement) TokenLiteral() string { return ls.Token.Literal }
 func (ls *LetStatement) String() string {
 	var out bytes.Buffer
@@ -71,7 +73,7 @@ func (ls *LetStatement) String() string {
 }
 
 type Identifier struct {
-	Token token.Token
+	Token token.Token // token.IDENT トークン
 	Value string
 }
 

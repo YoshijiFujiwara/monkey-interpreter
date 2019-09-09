@@ -167,12 +167,12 @@ func TestIntegerExpression(t *testing.T) {
 
 func TestParsingPrefixExpressions(t *testing.T) {
 	prefixTests := []struct {
-		input string
-		operator string
+		input        string
+		operator     string
 		integerValue int64
 	}{
-		{"!5", "!", 5},
-		{"-15", "-", 15},
+		{"!5;", "!", 5},
+		{"-15;", "-", 15},
 	}
 
 	for _, tt := range prefixTests {
