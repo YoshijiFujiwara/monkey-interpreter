@@ -33,8 +33,8 @@ func (p *Program) TokenLiteral() string {
 
 type LetStatement struct {
 	Token token.Token
-	Name *Identifier // 束縛の識別子を保持するために必要
-	Value string // 値を生成する式を保持するために必要
+	Name  *Identifier // 束縛の識別子を保持するために必要
+	Value string      // 値を生成する式を保持するために必要
 }
 
 func (ls *LetStatement) statementNode() {}
@@ -50,4 +50,14 @@ type Identifier struct {
 func (i *Identifier) expressionNode() {}
 func (i *Identifier) TokenLiteral() string {
 	return i.Token.Literal
+}
+
+type ReturnStatement struct {
+	Token       token.Token
+	ReturnValue Expression
+}
+
+func (rs *ReturnStatement) statementNode() {}
+func (rs *ReturnStatement) TokenLiteral() string {
+	return rs.Token.Literal
 }
