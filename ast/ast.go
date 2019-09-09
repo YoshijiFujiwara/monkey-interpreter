@@ -49,7 +49,7 @@ func (p *Program) String() string {
 type LetStatement struct {
 	Token token.Token
 	Name  *Identifier // 束縛の識別子を保持するために必要
-	Value *Identifier // 値を生成する式を保持するために必要
+	Value Expression  // 値を生成する式を保持するために必要
 }
 
 func (ls *LetStatement) statementNode()       {}
@@ -119,6 +119,26 @@ type IntegerLiteral struct {
 	Value int64 // ソースコード中の整数リテラルが表現している実際の値を格納するためのフィールド
 }
 
-func (il *IntegerLiteral) expressionNode() {}
-func (il *IntegerLiteral) TokenLiteral() string { return il.TokenLiteral() }
-func (il *IntegerLiteral) String() string { return il.Token.Literal }
+func (il *IntegerLiteral) expressionNode()      {}
+func (il *IntegerLiteral) TokenLiteral() string { return il.Token.Literal }
+func (il *IntegerLiteral) String() string       { return il.Token.Literal }
+
+type PrefixExpression struct {
+	Token    token.Token
+	Operator string
+	Right    Expression // 演算子の右側の式
+}
+
+func (pe *PrefixExpression) expressionNode() {}
+func (pe *PrefixExpression) TokenLiteral() string { return pe.Token.Literal }
+func (pe *PrefixExpression) String() string {
+	var out bytes.Buffer
+
+	// どのオペランドがどの演算子に属するのかがわかるように（）で括る
+	out.WriteString("(")
+	out.WriteString(pe.Operator)
+	out.WriteString(pe.Right.String())
+	out.WriteString(")")
+
+	return out.String()
+}

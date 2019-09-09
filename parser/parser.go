@@ -16,8 +16,8 @@ type Parser struct {
 	curToken  token.Token
 	peekToken token.Token
 
-	prefixParseFn map[token.TokenType]prefixParseFn
-	infixParseFn  map[token.TokenType]infixParseFn
+	prefixParseFns map[token.TokenType]prefixParseFn
+	infixParseFns  map[token.TokenType]infixParseFn
 }
 
 func New(l *lexer.Lexer) *Parser {
@@ -27,9 +27,11 @@ func New(l *lexer.Lexer) *Parser {
 	}
 
 	// 構文解析関数を登録
-	p.prefixParseFn = make(map[token.TokenType]prefixParseFn)
+	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
+	p.registerPrefix(token.BANG, p.parsePrefixExpression)
+	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 
 	// ２つトークンを読み込む。curTokenとpeekTokenの両方がセットされる
 	// "5;"の時のように、5が算術式の始まりなのか、行末なのかの判断に次のトークンが必要だ
@@ -134,18 +136,18 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 }
 
 type (
-	prefixParseFn func() ast.Expression              // 前置構文解析
-	infixParseFn func(ast.Expression) ast.Expression // 中置構文解析
+	prefixParseFn func() ast.Expression              // 前置構文解析関数
+	infixParseFn func(ast.Expression) ast.Expression // 中置構文解析関数
 )
 
 // マップにエントリを追加
 func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
-	p.prefixParseFn[tokenType] = fn
+	p.prefixParseFns[tokenType] = fn
 }
 
 // マップにエントリを追加
 func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
-	p.infixParseFn[tokenType] = fn
+	p.infixParseFns[tokenType] = fn
 }
 
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
@@ -164,17 +166,18 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 const (
 	_ int = iota
 	LOWEST
-	EQUALS
-	LESSGREATER
-	SUM
-	PRODUCT
-	PREFIX
-	CALL
+	EQUALS       // ==
+	LESSGREATER  // > or <
+	SUM          // +
+	PRODUCT      // *
+	PREFIX       // -X or !X
+	CALL         // myFunction(X)
 )
 
 func (p *Parser) parseExpression(precedence int) ast.Expression {
-	prefix := p.prefixParseFn[p.curToken.Type]
+	prefix := p.prefixParseFns[p.curToken.Type] // マッチした関数
 	if prefix == nil {
+		p.noPrefixParseFnError(p.curToken.Type)
 		return nil
 	}
 	leftExp := prefix()
@@ -198,4 +201,22 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 
 	lit.Value = value
 	return lit
+}
+
+func (p *Parser) noPrefixParseFnError(t token.TokenType) {
+	msg := fmt.Sprintf("no prefix parse function for %s found", t)
+	p.errors = append(p.errors, msg)
+}
+
+func (p *Parser) parsePrefixExpression() ast.Expression {
+	expression := &ast.PrefixExpression{
+		Token: p.curToken,
+		Operator: p.curToken.Literal,
+	}
+
+	p.nextToken()
+
+	expression.Right = p.parseExpression(PREFIX)
+
+	return expression
 }
