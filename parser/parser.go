@@ -12,13 +12,16 @@ type Parser struct {
 
 	errors []string
 
-	curToken token.Token
+	curToken  token.Token
 	peekToken token.Token
+
+	prefixParseFn map[token.TokenType]prefixParseFn
+	infixParseFn  map[token.TokenType]infixParseFn
 }
 
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
-		l: l,
+		l:      l,
 		errors: []string{},
 	}
 
@@ -121,4 +124,18 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	}
 
 	return stmt
+}
+
+type (
+	prefixParseFn func() ast.Expression              // 前置構文解析
+	infixParseFn func(ast.Expression) ast.Expression // 中置構文解析
+)
+
+// マップにエントリを追加
+func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
+	p.prefixParseFn[tokenType] = fn
+}
+// マップにエントリを追加
+func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
+	p.infixParseFn[tokenType] = fn
 }
