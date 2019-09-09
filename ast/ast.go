@@ -2,8 +2,10 @@ package ast
 
 import "first/token"
 
+// 抽象構文木 AST
+
 type Node interface {
-	TokenLiteral() string
+	TokenLiteral() string // ノードが関連付けられているトークンのリテラル値を返す
 }
 
 type Statement interface {
@@ -45,7 +47,7 @@ type Identifier struct {
 	Value string
 }
 
-func (i *Identifier) exporessionNode() {}
+func (i *Identifier) expressionNode() {}
 func (i *Identifier) TokenLiteral() string {
 	return i.Token.Literal
 }

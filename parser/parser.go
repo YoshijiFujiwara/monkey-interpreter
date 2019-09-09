@@ -23,6 +23,7 @@ func New(l *lexer.Lexer) *Parser {
 	}
 
 	// ２つトークンを読み込む。curTokenとpeekTokenの両方がセットされる
+	// "5;"の時のように、5が算術式の始まりなのか、行末なのかの判断に次のトークンが必要だ
 	p.nextToken()
 	p.nextToken()
 
@@ -34,7 +35,7 @@ func (p *Parser) Errors() []string {
 }
 
 func (p *Parser) peekError(t token.TokenType) {
-	msg := fmt.Sprintf("expected next token to be %s instead", t, p.peekToken.Type)
+	msg := fmt.Sprintf("expected next token to be %s, got %s instead", t, p.peekToken.Type)
 	p.errors = append(p.errors, msg)
 }
 
@@ -102,6 +103,7 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 		p.nextToken()
 		return true
 	} else {
+		p.peekError(t)
 		return false
 	}
 }

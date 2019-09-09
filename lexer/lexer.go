@@ -5,10 +5,10 @@ import (
 )
 
 type Lexer struct {
-	input string
-	position int // 入力における現在の位置（現在の文字）
-	readPosition int // これから読み込む位置（現在の文字の次）
-	ch byte // 現在検査中の文字
+	input        string
+	position     int  // 入力における現在の位置（現在の文字）。または、最後に読んだ文字が入ってる
+	readPosition int  // これから読み込む位置（現在の文字の次）
+	ch           byte // 現在検査中の文字。ASCII文字以外も対応したい場合は、byte -> rune に変更する必要がある
 }
 
 func New(input string) *Lexer {
@@ -19,8 +19,10 @@ func New(input string) *Lexer {
 
 func (l *Lexer) readChar() {
 	if l.readPosition >= len(l.input) {
-		l.ch = 0
+		// 入力が終端に達したかのチェック
+		l.ch = 0 // ASCIIコードのNULL文字に対応している
 	} else {
+		// 次の文字をセットする
 		l.ch = l.input[l.readPosition]
 	}
 	l.position = l.readPosition
@@ -33,7 +35,7 @@ func (l *Lexer) NextToken() token.Token {
 	// ホワイトスペースを読み飛ばす
 	l.skipWhitespace()
 
-	switch  l.ch {
+	switch l.ch {
 	case '=':
 		if l.peekChar() == '=' {
 			// 現在の文字を失わないように、ローカル変数に保存する
@@ -83,10 +85,15 @@ func (l *Lexer) NextToken() token.Token {
 		tok.Type = token.EOF
 	default: // 識別子かどうかを判断する
 		if isLetter(l.ch) {
+			// 現在読んでいるのが英字である場合、非英字が出てくるまで読み進める必要がある
 			tok.Literal = l.readIdentifier()
+			// 指定されたキーワードなら、そのTokenTypeを、そうでなければ、IDENT
 			tok.Type = token.LookUpIdent(tok.Literal)
+
+			// readIdentifier()呼び出しの中でreadChar()を繰り返し呼んでいるため、
+			// readPosition, positionフィールドが現在の識別子の最後の文字を過ぎているので、reacChar()が不要のため、return で離脱する
 			return tok
-		} else if isDigit(l.ch){
+		} else if isDigit(l.ch) {
 			tok.Type = token.INT
 			tok.Literal = l.readNumber()
 			return tok
@@ -107,6 +114,7 @@ func newToken(tokenType token.TokenType, ch byte) token.Token {
 func (l *Lexer) readIdentifier() string {
 	position := l.position
 	for isLetter(l.ch) {
+		// 現在読んでいるのが英字である場合、非英字が出てくるまで読み進める必要がある
 		l.readChar()
 	}
 	return l.input[position:l.position]
@@ -122,19 +130,20 @@ func (l *Lexer) skipWhitespace() {
 	}
 }
 
+// TODO: 整数しか読めない
 func (l *Lexer) readNumber() string {
 	position := l.position
 	for isDigit(l.ch) {
 		l.readChar()
 	}
-	return l.input[position: l.position]
+	return l.input[position:l.position]
 }
 
 func isDigit(ch byte) bool {
 	return '0' <= ch && ch <= '9'
 }
 
-// 次の文字を先読みする
+// 次の文字を先読みするだけなので、l.positionとl.readPositionをインクリメントしない
 func (l *Lexer) peekChar() byte {
 	if l.readPosition >= len(l.input) {
 		return 0

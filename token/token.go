@@ -55,6 +55,8 @@ var keywords = map[string]TokenType{
 
 // キーワードではないかをチェックする
 func LookUpIdent(ident string) TokenType {
+	// この書き方知らなかった。
+	// マップにキーが存在するかをチェックしてやればよい
 	if tok, ok := keywords[ident]; ok {
 		return tok
 	}
