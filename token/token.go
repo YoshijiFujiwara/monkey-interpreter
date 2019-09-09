@@ -16,8 +16,15 @@ const (
 	INT   = "INT"
 
 	// 演算子
-	ASSIGN = "="
-	PLUS   = "+"
+	ASSIGN   = "="
+	PLUS     = "+"
+	MINUS    = "-"
+	BANG     = "!"
+	ASTERISK = "*"
+	SLASH    = "/"
+
+	LT = "<"
+	GT = ">"
 
 	// デリミタ
 	COMMA     = ","
@@ -31,10 +38,18 @@ const (
 	// キーワード
 	FUNCTION = "FUNCTION"
 	LET      = "LET"
+	TRUE     = "TRUE"
+	FALSE    = "FALSE"
+	IF       = "IF"
+	ELSE     = "ELSE"
+	RETURN   = "RETURN"
+
+	EQ     = "=="
+	NOT_EQ = "!="
 )
 
-var keywords = map[string]TokenType {
-	"fn": FUNCTION,
+var keywords = map[string]TokenType{
+	"fn":  FUNCTION,
 	"let": LET,
 }
 
