@@ -53,7 +53,8 @@ type LetStatement struct {
 }
 
 // statementインターフェースを満たす
-func (ls *LetStatement) statementNode()       {}
+func (ls *LetStatement) statementNode() {}
+
 // Nodeインターフェースを満たす
 func (ls *LetStatement) TokenLiteral() string { return ls.Token.Literal }
 func (ls *LetStatement) String() string {
@@ -131,7 +132,7 @@ type PrefixExpression struct {
 	Right    Expression // 演算子の右側の式
 }
 
-func (pe *PrefixExpression) expressionNode() {}
+func (pe *PrefixExpression) expressionNode()      {}
 func (pe *PrefixExpression) TokenLiteral() string { return pe.Token.Literal }
 func (pe *PrefixExpression) String() string {
 	var out bytes.Buffer
@@ -146,13 +147,13 @@ func (pe *PrefixExpression) String() string {
 }
 
 type InfixExpression struct {
-	Token token.Token // 演算子トークン 例えば、「+」
-	Left Expression
+	Token    token.Token // 演算子トークン 例えば、「+」
+	Left     Expression
 	Operator string
-	Right Expression
+	Right    Expression
 }
 
-func (ie *InfixExpression) expressionNode() {}
+func (ie *InfixExpression) expressionNode()      {}
 func (ie *InfixExpression) TokenLiteral() string { return ie.Token.Literal }
 func (ie *InfixExpression) String() string {
 	var out bytes.Buffer
@@ -165,3 +166,12 @@ func (ie *InfixExpression) String() string {
 
 	return out.String()
 }
+
+type Boolean struct {
+	Token token.Token
+	Value bool
+}
+
+func (b *Boolean) expressionNode()      {}
+func (b *Boolean) TokenLiteral() string { return b.Token.Literal }
+func (b *Boolean) String() string       { return b.Token.Literal }
