@@ -1,5 +1,6 @@
 package token
 
+// stringにすると、int, byteほどの性能が得られない可能性はある
 type TokenType string
 
 type Token struct {
@@ -9,7 +10,7 @@ type Token struct {
 
 const (
 	ILLEGAL = "ILLEGAL"
-	EOF     = "EOF"
+	EOF     = "EOF" // 構文解析器に、停止する場所を伝える
 
 	// 識別子　＋　リテラル
 	IDENT = "IDENT"
